@@ -1,0 +1,6 @@
+{
+  "name": "AI Customer Service Chatbot",
+  "description": "An AI-powered chatbot for customer service, designed to be embedded in websites like Google Sites. It answers user questions in Vietnamese based on a provided knowledge base, simulating a helpful assistant.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
