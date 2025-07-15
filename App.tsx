@@ -12,19 +12,17 @@ const App: React.FC = () => {
 
   return (
     <div className="font-sans">
-      <div className="fixed bottom-5 right-5 z-50">
-        {isChatOpen ? (
-          <Chatbot onClose={toggleChat} />
-        ) : (
-          <button
-            onClick={toggleChat}
-            className="bg-teal-700 text-white p-4 rounded-full shadow-lg hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 transition-transform transform hover:scale-110"
-            aria-label="Open chat"
-          >
-            <ChatBubbleIcon />
-          </button>
-        )}
-      </div>
+      {isChatOpen ? (
+        <Chatbot onClose={toggleChat} />
+      ) : (
+        <button
+          onClick={toggleChat}
+          className="fixed bottom-5 right-5 z-50 bg-teal-700 text-white p-4 rounded-full shadow-lg hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 transition-transform transform hover:scale-110"
+          aria-label="Open chat"
+        >
+          <ChatBubbleIcon />
+        </button>
+      )}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Chat } from '@google/genai';
 import { Message, Role } from '../types';
@@ -15,6 +16,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
   const [chatSession, setChatSession] = useState<Chat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const logoUrl = "https://i.postimg.cc/90YYgzYG/econova-logo-2.png";
+
+  // State for dragging functionality
+  const chatWindowRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragInfo = useRef<{ startX: number; startY: number; initialTop: number; initialLeft: number; } | null>(null);
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
 
   useEffect(() => {
     // Initialize chat session and send the first greeting message from the bot
@@ -41,6 +48,59 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+  
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    const chatNode = chatWindowRef.current;
+    if (!chatNode) return;
+
+    e.preventDefault();
+    setIsDragging(true);
+
+    const rect = chatNode.getBoundingClientRect();
+
+    // On the first drag, capture initial position and switch to fixed positioning with top/left
+    const currentPosition = position || { top: rect.top, left: rect.left };
+    if (!position) {
+      setPosition(currentPosition);
+    }
+    
+    dragInfo.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialTop: currentPosition.top,
+      initialLeft: currentPosition.left,
+    };
+  };
+
+  useEffect(() => {
+    const handleDragMove = (e: MouseEvent) => {
+      if (!isDragging || !dragInfo.current) return;
+      e.preventDefault();
+
+      const dx = e.clientX - dragInfo.current.startX;
+      const dy = e.clientY - dragInfo.current.startY;
+
+      setPosition({
+        top: dragInfo.current.initialTop + dy,
+        left: dragInfo.current.initialLeft + dx,
+      });
+    };
+
+    const handleDragEnd = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+    };
+  }, [isDragging]);
+
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,11 +126,26 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
       setIsLoading(false);
     }
   };
+  
+  const rootClasses = [
+    "w-80 h-[28rem] sm:w-96 sm:h-[32rem]",
+    "bg-white rounded-xl shadow-2xl flex flex-col",
+    // When `position` is null (before dragging), use fixed classes for bottom-right.
+    // When `position` is set (during/after dragging), use `fixed` and let inline styles handle top/left.
+    position ? 'fixed z-50' : 'fixed z-50 bottom-5 right-5'
+  ].join(' ');
+
+  const rootStyles: React.CSSProperties = position
+    ? { top: `${position.top}px`, left: `${position.left}px` }
+    : {};
 
   return (
-    <div className="w-80 h-[28rem] sm:w-96 sm:h-[32rem] bg-white rounded-xl shadow-2xl flex flex-col transition-all duration-300 ease-in-out">
+    <div ref={chatWindowRef} className={rootClasses} style={rootStyles}>
       {/* Header */}
-      <div className="bg-teal-700 text-white p-4 rounded-t-xl flex justify-between items-center">
+      <div 
+        onMouseDown={handleDragStart}
+        className="bg-teal-700 text-white p-4 rounded-t-xl flex justify-between items-center cursor-move"
+      >
         <h3 className="font-bold text-lg">ECO Bot</h3>
         <button
           onClick={onClose}

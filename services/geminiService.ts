@@ -1,12 +1,6 @@
+
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { GOOGLE_SHEET_CSV_URL, SYSTEM_INSTRUCTION_TEMPLATE } from '../constants';
-
-// --- HƯỚNG DẪN THÊM API KEY ---
-// 1. Lấy API Key của bạn từ Google AI Studio (https://aistudio.google.com/app/apikey).
-// 2. Dán API Key của bạn vào đây, thay thế cho 'YOUR_API_KEY_HERE'.
-// QUAN TRỌNG: KHÔNG chia sẻ mã nguồn này công khai khi đã có API Key của bạn.
-const API_KEY = 'AIzaSyCrxm30ZfRfPDDVUmGao8bcN0cQtK2xi6I';
-
 
 let ai: GoogleGenAI | null = null;
 
@@ -20,10 +14,10 @@ const getAiClient = (): GoogleGenAI => {
         return ai;
     }
 
-    // Check if the API key is provided in the constant above.
-    if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
-        const errorMessage = "API Key chưa được cấu hình. Vui lòng thêm API Key vào file services/geminiService.ts.";
-        const developerNote = "Để ứng dụng hoạt động, bạn cần cung cấp một Google AI API Key hợp lệ. Mở file `services/geminiService.ts` và thay thế giá trị của hằng số `API_KEY` bằng khóa của bạn.";
+    // The API key is expected to be set as an environment variable.
+    if (!process.env.API_KEY) {
+        const errorMessage = "API Key chưa được cấu hình. Vui lòng đảm bảo biến môi trường API_KEY được thiết lập.";
+        const developerNote = "Để ứng dụng hoạt động, bạn cần cung cấp một Google AI API Key hợp lệ thông qua biến môi trường `API_KEY`.";
 
         console.error(`[AI Service Error] ${errorMessage}\n\n[Developer Note] ${developerNote}`);
 
@@ -31,7 +25,7 @@ const getAiClient = (): GoogleGenAI => {
         throw new Error(errorMessage);
     }
     
-    ai = new GoogleGenAI({ apiKey: API_KEY });
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     return ai;
 };
 
