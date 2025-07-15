@@ -132,7 +132,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
     "bg-white rounded-xl shadow-2xl flex flex-col",
     // When `position` is null (before dragging), use fixed classes for bottom-right.
     // When `position` is set (during/after dragging), use `fixed` and let inline styles handle top/left.
-    position ? 'fixed z-50' : 'fixed z-50 bottom-5 right-5'
+    position ? 'fixed z-50' : 'fixed z-50 bottom-5 right-5',
+    'pointer-events-auto' // Re-enable pointer events for the chat window
   ].join(' ');
 
   const rootStyles: React.CSSProperties = position
